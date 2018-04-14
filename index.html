@@ -63,8 +63,8 @@ connection.onmessage = msg =>{
     	for(let i in qq) {
     		dataSet.push(qq[i]);
     	}
-    	console.log('Колличество данных',dataSet.length);
-    	console.log('Данные',dataSet);
+    	//console.log('Колличество данных',dataSet.length);
+    	//console.log('Данные',dataSet);
     	listCharts.forEach(value => {
 			for( let i = 0; i < 24; i++ ) {
 				value.loop.push({key: i, value:0, setted:false});
@@ -356,7 +356,7 @@ function setLoop(arr){
 		count = 0;	
 	}*/
 	time.forEach( (value) => {
-		console.log(value);
+		//console.log(value);
 		if(mark == true) {
 			arr1.push({ x:value.key, y:value.value });
 		}
@@ -376,7 +376,7 @@ function setLoop(arr){
 }
 //new Date().toLocaleDateString('ru-RU',{ day: 'numeric'})
 function addElem(data){
-	console.log(data.length);
+	//console.log(data.length);
 	//присваиваем х вр.массивах значения
 	listCharts.forEach( ( value, index ) => {
 		for(let i = 0; i < value.loop.length; i++) {
