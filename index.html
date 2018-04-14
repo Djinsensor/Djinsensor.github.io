@@ -1,0 +1,421 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>  
+<script>var connection = new WebSocket('ws://91.201.41.253:5556'); </script>
+<title>
+	DjinnSensor
+</title>
+<link rel="stylesheet" href="bootstrap.min.css"/>
+<link rel="stylesheet" href="custom.css"/>
+</head>
+<body>
+	<header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-dark text-white">
+            <div class="container">
+                <a class="navbar-brand"><img src="graphics/djin.png" width="30" height="30" class="d-inline-block align-top" alt=""> DjinnSensor</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <button class="btn btn-success my-2 my-sm-0" id="set"><span class="icon-link"></span> Force load</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <article>
+		<div id="pressureTab" style="height: 300px; width: 100%;"></div>
+		<div id="co2Tab" style="height: 300px; width: 100%;"></div>
+		<div id="tvocTab" style="height: 300px; width: 100%;"></div>
+		<div id="temperatureTab" style="height: 300px; width: 100%;"></div>
+		<div id="humidityTab" style="height: 300px; width: 100%;"></div>
+		<div id="lightTab" style="height: 300px; width: 100%;"></div>
+		<div id="fieldTab" style="height: 300px; width: 100%;"></div>
+		<div id="noiseTab" style="height: 300px; width: 100%;"></div>
+		<div id="smokeTab" style="height: 300px; width: 100%;"></div>
+		<div id="voltageTab" style="height: 300px; width: 100%;"></div>
+	</article>
+	<footer class="footer">
+        <div class="container">
+            <div>
+                <span class="text-muted">DjinnSensor @ 2018</span>
+            </div>
+        </div>
+    </footer>
+<script>
+document.getElementById('set').addEventListener('click',()=>{
+	//console.log('111');
+	//addElem(Number(document.getElementById('in').value));
+	connection.send('hello');
+	
+});
+setInterval(()=>{
+	connection.send('hello');
+},20000)
+connection.onmessage = msg =>{
+    	let qq = JSON.parse(msg.data), dataSet = [];
+    	for(let i in qq) {
+    		dataSet.push(qq[i]);
+    	}
+    	console.log('Колличество данных',dataSet.length);
+    	console.log('Данные',dataSet);
+    	listCharts.forEach(value => {
+			for( let i = 0; i < 24; i++ ) {
+				value.loop.push({key: i, value:0, setted:false});
+			}
+		})
+    	addElem(dataSet)
+	}  
+let time = [];
+
+let pressureTab = new CanvasJS.Chart("pressureTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Давление"
+	},
+	axisY: {
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		color:getRandomColor(),
+		yValueFormatString: "#,### Переменные для Давление",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+
+pressureTab.render();
+
+let co2Tab = new CanvasJS.Chart("co2Tab", {
+	animationEnabled: false,  
+	title:{
+		text: "CO2"
+	},
+	axisY: {
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### CO2",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+co2Tab.render();
+
+let tvocTab = new CanvasJS.Chart("tvocTab", {
+	animationEnabled: false,  
+	title:{
+		text: "TVOC"
+	},
+	axisY: {
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		color:getRandomColor(),
+		yValueFormatString: "#,### TVOC",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+tvocTab.render();
+let fieldTab = new CanvasJS.Chart("fieldTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Field"
+	},
+	axisY: {
+		color:'green',
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Field",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+fieldTab.render();
+let smokeTab = new CanvasJS.Chart("smokeTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Smoke"
+	},
+	axisY: {
+		color:'grey',
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Smoke",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+smokeTab.render();
+let noiseTab = new CanvasJS.Chart("noiseTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Noise"
+	},
+	axisY: {
+		color:getRandomColor(),
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Noise",
+		type: "area",
+		dataPoints: getArr()
+	}]
+});
+noiseTab.render();
+let lightTab = new CanvasJS.Chart("lightTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Light"
+	},
+	axisY: {
+		color:'blue',
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Light",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+lightTab.render();
+let humidityTab = new CanvasJS.Chart("humidityTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Humidity"
+	},
+	axisY: {
+		color:'Yellow',
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Humidity",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+humidityTab.render();
+let voltageTab = new CanvasJS.Chart("voltageTab", {
+	animationEnabled: false,  
+	title:{
+		text: "Voltage"
+	},
+	axisY: {
+		color:getRandomColor(),
+		title: "показатель",
+		valueFormatString: "#",
+		stripLines: [{
+			value: 100,
+			label: "Среднее"
+		}]
+	},
+	data: [{
+		yValueFormatString: "#,### Voltage",
+		type: "spline",
+		dataPoints: getArr()
+	}]
+});
+voltageTab.render();
+let temperatureTab = new CanvasJS.Chart("temperatureTab", {
+	animationEnabled: false,
+	title:{
+		text: "Temperature"
+	},
+	axisY: {
+		title: "Degree",
+	},
+	data: [{
+		color: "red",
+		type: "stepArea",
+		markerSize: 5,
+		yValueFormatString: "#,##0.##\"t\"",
+		dataPoints: getArr()
+	}]
+});
+temperatureTab.render();
+
+
+const pressure = {
+		loop: [],
+		chart: pressureTab
+},
+co2 = {
+	loop: [],
+	chart: co2Tab
+}
+tvoc = {
+	loop: [],
+	chart: tvocTab
+}
+field = {
+	loop: [],
+	chart: fieldTab
+}
+temperature = {
+	loop:[],
+	chart:temperatureTab
+}
+ voltage = {
+	loop:[],
+	chart:voltageTab
+}
+humidity = {
+	loop:[],
+	chart:humidityTab
+}
+light = {
+	loop:[],
+	chart:lightTab
+}
+noise = {
+	loop:[],
+	chart:noiseTab
+}
+smoke = {
+	loop:[],
+	chart:smokeTab
+}
+
+const listCharts = new Map([
+	['Pressure', pressure],
+	['Co2', co2],
+	['Tvoc', tvoc],
+	['Field',field],
+	['Temperature', temperature],
+	['Smoke', smoke],
+	['Noise', noise],
+	['Light', light],
+	['Humidity', humidity],
+	['Voltage', voltage]
+]);
+
+//init x and set map TIME
+function getArr(){
+	let arr1 = [];
+	time = [];
+	for( let i = 0; i < 24; i++ ) {
+		arr1.push({x:i,y:0})
+		time.push({key: i, value:0, setted:false});
+	}
+	return arr1 
+}
+//let count = 0;
+function setLoop(arr){
+	//count++
+	let mark = false;
+	/*if(count == 23) {
+		time.forEach(value=> value.setted = false);
+		count = 0;	
+	}*/
+	time.forEach( (value) => {
+		console.log(value);
+		if(mark == true) {
+			arr1.push({ x:value.key, y:value.value });
+		}
+		if (mark == false && value.setted == false) {
+			console.log('true');
+			value.value = param
+			mark = true;
+			arr1.push({x:value.key, y:param});
+			value.setted = true;
+		}
+		if (mark == false && value.setted == true){
+			console.log('false');
+			arr1.push({ x:value.key, y:value.value });
+			//value.setted = false;
+		}
+	})
+}
+//new Date().toLocaleDateString('ru-RU',{ day: 'numeric'})
+function addElem(data){
+	console.log(data.length);
+	//присваиваем х вр.массивах значения
+	listCharts.forEach( ( value, index ) => {
+		for(let i = 0; i < value.loop.length; i++) {
+			//console.log(index)
+			try{
+				if( data[i].hour == undefined || value.loop[i].key != data[i].hour ) value.loop[i].y = 0;
+				else {
+					for(let y in data[i]) {
+						//console.log(`${y} == ${index}`)
+						if(y == index) {
+							//console.log(true)
+							value.loop[i].value = data[i][y] .toFixed(3);
+						} //else console.log(false)
+					};
+				}
+			} catch(e) {
+				console.log(e);
+				value.loop[i].y = 0;
+			}
+		}
+	});
+	listCharts.forEach( val1 => {
+		//console.log(val1.loop)
+		let arr1 = val1.loop.map( it => {
+			return {x:it.key, y:Number(it.value)}
+		});
+		val1.chart.options.data[0].dataPoints = arr1; 
+		val1.chart.render();
+	});
+}
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+
+</script>
+</body>
+</html>
